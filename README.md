@@ -34,5 +34,4 @@ Follow these steps to set up and run the project locally.
 **1. Clone the repository:**
 
 ```bash
-git clone [https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git](https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git)
-cd YOUR_REPOSITORY_NAME
+git clone https://github.com/1MaNan071/Customer-Support-Agent.git
