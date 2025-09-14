@@ -1,0 +1,14 @@
+langchain
+langchain-groq
+langchain-community
+langchain-huggingface
+langgraph
+langgraph-checkpoint-sqlite
+faiss-cpu
+sentence-transformers
+torch
+pydantic
+python-dotenv
+streamlit
+tiktoken
+aiosqlite
