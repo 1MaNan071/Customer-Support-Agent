@@ -14,11 +14,9 @@ This guide provides step-by-step instructions to set up and run the LangGraph Cu
 Clone the project repository from GitHub to your local machine:
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPOSITORY_NAME.git
-cd YOUR_REPOSITORY_NAME
+git clone https://github.com/1MaNan071/Customer-Support-Agent.git
+cd Customer-Support-Agent
 ```
-
-*(Replace `YOUR_USERNAME` and `YOUR_REPOSITORY_NAME` with your actual GitHub details.)*
 
 ---
 
