@@ -4,6 +4,8 @@ A production-ready AI customer support chatbot that lets companies plug in their
 
 ![Workflow Diagram](./assets/workflow.png)
 
+🔗 **Live Demo:** [https://customersupportai.vercel.app/](https://customersupportai.vercel.app/)
+
 ---
 
 ## ✨ Features
