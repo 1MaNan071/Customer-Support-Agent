@@ -1,14 +1,22 @@
-langchain
-langchain-groq
-langchain-community
-langchain-huggingface
-langgraph
-langgraph-checkpoint-sqlite
-faiss-cpu
-sentence-transformers
-torch
-pydantic
-python-dotenv
-streamlit
-tiktoken
-aiosqlite
+# ── Vercel deployment (lightweight) ──────────────────
+fastapi>=0.104.0
+uvicorn>=0.24.0
+groq>=0.4.0
+python-dotenv>=1.0.0
+python-multipart>=0.0.6
+pydantic>=2.0.0
+
+# ── Local development with Streamlit (optional) ─────
+# Uncomment the lines below to run the original Streamlit app locally:
+# langchain
+# langchain-groq
+# langchain-community
+# langchain-huggingface
+# langgraph
+# langgraph-checkpoint-sqlite
+# faiss-cpu
+# sentence-transformers
+# torch
+# streamlit
+# tiktoken
+# aiosqlite

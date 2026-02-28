@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Customer Support Agent</title>
+    <style>
+        /* ── CSS Reset & Variables ──────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --primary: #4f46e5;
+            --primary-h: #4338ca;
+            --text: #1e293b;
+            --text-sec: #64748b;
+            --border: #e2e8f0;
+            --chat-user: #4f46e5;
+            --chat-bot: #f1f5f9;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --radius: 12px;
+            --shadow: 0 1px 3px rgba(0, 0, 0, .08), 0 1px 2px rgba(0, 0, 0, .06);
+            --shadow-lg: 0 10px 30px rgba(0, 0, 0, .1);
+            --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        /* ── Layout ─────────────────────────────────────────── */
+        .app {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ── Sidebar ────────────────────────────────────────── */
+        .sidebar {
+            width: 360px;
+            min-width: 320px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: transform .3s ease;
+            z-index: 20;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+            position: absolute;
+            height: 100%;
+        }
+
+        .sidebar-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-header h2 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .sidebar-close {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-sec);
+        }
+
+        .sidebar-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 24px;
+        }
+
+        /* Upload area */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 28px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all .2s;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(79, 70, 229, 0.04);
+        }
+
+        .upload-zone input {
+            display: none;
+        }
+
+        .upload-zone .icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .upload-zone p {
+            font-size: 13px;
+            color: var(--text-sec);
+            margin-top: 6px;
+        }
+
+        .upload-zone .label {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 14px;
+        }
+
+        /* Add FAQ form */
+        .add-faq-form {
+            margin-bottom: 20px;
+        }
+
+        .add-faq-form h3 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--text-sec);
+            margin-bottom: 10px;
+        }
+
+        .add-faq-form textarea {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-family: var(--font);
+            resize: vertical;
+            min-height: 60px;
+            transition: border-color .2s;
+        }
+
+        .add-faq-form textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .add-faq-form .row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        /* FAQ list */
+        .faq-list {
+            margin-top: 8px;
+        }
+
+        .faq-list h3 {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            color: var(--text-sec);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .faq-count {
+            background: var(--primary);
+            color: #fff;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+
+        .faq-item {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            position: relative;
+            transition: all .2s;
+        }
+
+        .faq-item:hover {
+            box-shadow: var(--shadow);
+        }
+
+        .faq-item .q {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+            padding-right: 30px;
+        }
+
+        .faq-item .a {
+            font-size: 12px;
+            color: var(--text-sec);
+            line-height: 1.5;
+        }
+
+        .faq-item .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-sec);
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            border-radius: 4px;
+            padding: 2px 6px;
+            transition: all .15s;
+        }
+
+        .faq-item .delete-btn:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, .1);
+        }
+
+        .sidebar-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+        }
+
+        /* ── Main Chat Area ─────────────────────────────────── */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: var(--shadow);
+            z-index: 10;
+        }
+
+        .sidebar-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 10px;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text-sec);
+            transition: all .2s;
+        }
+
+        .sidebar-toggle:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .chat-header .title-group h1 {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .chat-header .title-group p {
+            font-size: 12px;
+            color: var(--text-sec);
+            margin-top: 2px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            display: inline-block;
+            margin-right: 4px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .4;
+            }
+        }
+
+        /* Messages */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .welcome-msg {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-sec);
+        }
+
+        .welcome-msg .emoji {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .welcome-msg h2 {
+            font-size: 22px;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .welcome-msg p {
+            font-size: 14px;
+            max-width: 400px;
+            margin: 0 auto 24px;
+            line-height: 1.6;
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .suggestions button {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: var(--font);
+            color: var(--text);
+        }
+
+        .suggestions button:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(79, 70, 229, .04);
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 80%;
+            animation: fadeIn .3s ease;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message.assistant {
+            align-self: flex-start;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .message.user .avatar {
+            background: var(--chat-user);
+            color: #fff;
+        }
+
+        .message.assistant .avatar {
+            background: var(--border);
+        }
+
+        .bubble {
+            padding: 12px 16px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+
+        .message.user .bubble {
+            background: var(--chat-user);
+            color: #fff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.assistant .bubble {
+            background: var(--chat-bot);
+            border-bottom-left-radius: 4px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-sec);
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: .2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: .4s;
+        }
+
+        @keyframes typing {
+
+            0%,
+            60%,
+            100% {
+                transform: translateY(0);
+                opacity: .4;
+            }
+
+            30% {
+                transform: translateY(-6px);
+                opacity: 1;
+            }
+        }
+
+        .msg-time {
+            font-size: 11px;
+            color: var(--text-sec);
+            margin-top: 4px;
+        }
+
+        .message.user .msg-time {
+            text-align: right;
+        }
+
+        /* Input area */
+        .chat-input-area {
+            padding: 16px 24px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            background: var(--bg);
+            border-radius: var(--radius);
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            transition: border-color .2s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--primary);
+        }
+
+        .input-wrapper textarea {
+            flex: 1;
+            border: none;
+            background: none;
+            font-size: 14px;
+            font-family: var(--font);
+            resize: none;
+            outline: none;
+            max-height: 120px;
+            min-height: 22px;
+            line-height: 22px;
+            color: var(--text);
+        }
+
+        .send-btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            width: 38px;
+            height: 38px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .2s;
+            flex-shrink: 0;
+        }
+
+        .send-btn:hover {
+            background: var(--primary-h);
+        }
+
+        .send-btn:disabled {
+            background: var(--border);
+            cursor: not-allowed;
+        }
+
+        .send-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            font-family: var(--font);
+            transition: all .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-h);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--text);
+        }
+
+        .btn-outline:hover {
+            background: var(--bg);
+        }
+
+        .btn-danger {
+            background: transparent;
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, .08);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .toast {
+            background: var(--surface);
+            border-radius: 8px;
+            padding: 12px 20px;
+            box-shadow: var(--shadow-lg);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideIn .3s ease;
+            min-width: 250px;
+        }
+
+        .toast.success {
+            border-left: 4px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 4px solid var(--danger);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                max-width: 360px;
+                box-shadow: var(--shadow-lg);
+            }
+
+            .sidebar.hidden {
+                transform: translateX(-100%);
+            }
+
+            .sidebar-close {
+                display: block;
+            }
+
+            .message {
+                max-width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app">
+        <!-- Sidebar -->
+        <aside class="sidebar hidden" id="sidebar">
+            <div class="sidebar-header">
+                <h2>📚 Knowledge Base</h2>
+                <button class="sidebar-close" id="sidebarClose" title="Close sidebar">&times;</button>
+            </div>
+            <div class="sidebar-body">
+                <!-- Upload zone -->
+                <div class="upload-zone" id="uploadZone">
+                    <div class="icon">📁</div>
+                    <div class="label">Upload FAQ File</div>
+                    <p>Drag & drop or click to upload<br />.json, .csv, or .txt files</p>
+                    <input type="file" id="fileInput" accept=".json,.csv,.txt" />
+                </div>
+
+                <!-- Add FAQ manually -->
+                <div class="add-faq-form">
+                    <h3>Add FAQ Manually</h3>
+                    <textarea id="newQuestion" placeholder="Question..." rows="2"></textarea>
+                    <textarea id="newAnswer" placeholder="Answer..." rows="2" style="margin-top:8px"></textarea>
+                    <div class="row" style="margin-top:10px">
+                        <button class="btn btn-primary btn-sm btn-block" onclick="addFaq()">+ Add FAQ</button>
+                    </div>
+                </div>
+
+                <!-- FAQ list -->
+                <div class="faq-list">
+                    <h3>Current FAQs <span class="faq-count" id="faqCount">0</span></h3>
+                    <div id="faqListContainer"></div>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <button class="btn btn-outline btn-sm" style="flex:1" onclick="resetFaqs()">↺ Reset Defaults</button>
+                <button class="btn btn-danger btn-sm" style="flex:1" onclick="clearFaqs()">🗑 Clear All</button>
+            </div>
+        </aside>
+
+        <!-- Main chat area -->
+        <main class="main">
+            <header class="chat-header">
+                <button class="sidebar-toggle" id="sidebarToggle" title="Toggle knowledge base">☰</button>
+                <div class="title-group">
+                    <h1>🤖 Support Agent</h1>
+                    <p><span class="status-dot"></span>Online &mdash; Powered by AI</p>
+                </div>
+            </header>
+
+            <div class="chat-messages" id="chatMessages">
+                <div class="welcome-msg" id="welcomeMsg">
+                    <div class="emoji">💬</div>
+                    <h2>How can I help you today?</h2>
+                    <p>I'm your AI customer support assistant. Ask me anything about our products, shipping, returns, or
+                        account management.</p>
+                    <div class="suggestions" id="suggestions"></div>
+                </div>
+            </div>
+
+            <div class="chat-input-area">
+                <div class="input-wrapper">
+                    <textarea id="chatInput" placeholder="Type your message…" rows="1" onkeydown="handleKeyDown(event)"
+                        oninput="autoResize(this)"></textarea>
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // ── State ──────────────────────────────────────────────────────────
+        const API_BASE = window.location.origin;
+        let conversationHistory = [];
+        let isStreaming = false;
+
+        // ── DOM refs ───────────────────────────────────────────────────────
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebarClose = document.getElementById('sidebarClose');
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const welcomeMsg = document.getElementById('welcomeMsg');
+        const suggestionsEl = document.getElementById('suggestions');
+
+        // ── Sidebar toggle ─────────────────────────────────────────────────
+        sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('hidden'));
+        sidebarClose.addEventListener('click', () => sidebar.classList.add('hidden'));
+
+        // ── Input handling ─────────────────────────────────────────────────
+        chatInput.addEventListener('input', () => {
+            sendBtn.disabled = !chatInput.value.trim() || isStreaming;
+        });
+
+        function autoResize(el) {
+            el.style.height = 'auto';
+            el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (chatInput.value.trim() && !isStreaming) sendMessage();
+            }
+        }
+
+        // ── Chat logic ─────────────────────────────────────────────────────
+        async function sendMessage(text) {
+            const message = text || chatInput.value.trim();
+            if (!message || isStreaming) return;
+
+            // Hide welcome
+            if (welcomeMsg) welcomeMsg.style.display = 'none';
+
+            // Add user message
+            appendMessage('user', message);
+            conversationHistory.push({ role: 'user', content: message });
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            sendBtn.disabled = true;
+            isStreaming = true;
+
+            // Typing indicator
+            const typingEl = appendTyping();
+
+            try {
+                const res = await fetch(`${API_BASE}/api/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, history: conversationHistory.slice(0, -1) }),
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.detail || `Server error (${res.status})`);
+                }
+
+                const data = await res.json();
+                typingEl.remove();
+                appendMessage('assistant', data.response);
+                conversationHistory.push({ role: 'assistant', content: data.response });
+            } catch (err) {
+                typingEl.remove();
+                appendMessage('assistant', '❌ ' + err.message);
+                showToast(err.message, 'error');
+            } finally {
+                isStreaming = false;
+                sendBtn.disabled = !chatInput.value.trim();
+            }
+        }
+
+        function appendMessage(role, content) {
+            const wrapper = document.createElement('div');
+            wrapper.className = `message ${role}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = role === 'user' ? '👤' : '🤖';
+
+            const inner = document.createElement('div');
+
+            const bubble = document.createElement('div');
+            bubble.className = 'bubble';
+            bubble.textContent = content;
+
+            const time = document.createElement('div');
+            time.className = 'msg-time';
+            time.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            inner.appendChild(bubble);
+            inner.appendChild(time);
+
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(inner);
+
+            chatMessages.appendChild(wrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return wrapper;
+        }
+
+        function appendTyping() {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message assistant';
+
+            const avatar = document.createElement('div');
+            avatar.className = 'avatar';
+            avatar.textContent = '🤖';
+
+            const indicator = document.createElement('div');
+            indicator.className = 'typing-indicator';
+            indicator.innerHTML = '<span></span><span></span><span></span>';
+
+            wrapper.appendChild(avatar);
+            wrapper.appendChild(indicator);
+            chatMessages.appendChild(wrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            return wrapper;
+        }
+
+        // ── File upload ────────────────────────────────────────────────────
+        uploadZone.addEventListener('click', () => fileInput.click());
+        uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+        uploadZone.addEventListener('drop', e => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) uploadFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', () => { if (fileInput.files.length) uploadFile(fileInput.files[0]); });
+
+        async function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch(`${API_BASE}/api/upload`, { method: 'POST', body: formData });
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(err.detail || 'Upload failed');
+                }
+                const data = await res.json();
+                showToast(`✅ Added ${data.added} FAQs (${data.total} total)`, 'success');
+                loadFaqs();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+            fileInput.value = '';
+        }
+
+        // ── FAQ management ─────────────────────────────────────────────────
+        async function loadFaqs() {
+            try {
+                const res = await fetch(`${API_BASE}/api/faqs`);
+                const data = await res.json();
+                renderFaqs(data.faqs);
+                renderSuggestions(data.faqs);
+            } catch (err) {
+                console.error('Failed to load FAQs:', err);
+            }
+        }
+
+        function renderFaqs(faqs) {
+            const container = document.getElementById('faqListContainer');
+            document.getElementById('faqCount').textContent = faqs.length;
+
+            if (!faqs.length) {
+                container.innerHTML = '<p style="color:var(--text-sec);font-size:13px;text-align:center;padding:20px 0;">No FAQs loaded. Upload a file or add manually.</p>';
+                return;
+            }
+
+            container.innerHTML = faqs.map((faq, i) => `
+    <div class="faq-item">
+      <div class="q">Q: ${escapeHtml(faq.question)}</div>
+      <div class="a">${escapeHtml(faq.answer)}</div>
+      <button class="delete-btn" onclick="deleteFaq(${i})" title="Delete">×</button>
+    </div>
+  `).join('');
+        }
+
+        function renderSuggestions(faqs) {
+            const samples = faqs.slice(0, 4);
+            suggestionsEl.innerHTML = samples.map(f =>
+                `<button onclick="sendMessage('${escapeHtml(f.question)}')">${escapeHtml(f.question)}</button>`
+            ).join('');
+        }
+
+        async function addFaq() {
+            const q = document.getElementById('newQuestion').value.trim();
+            const a = document.getElementById('newAnswer').value.trim();
+            if (!q || !a) return showToast('Please fill in both question and answer.', 'error');
+
+            try {
+                const res = await fetch(`${API_BASE}/api/faqs`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ faqs: [{ question: q, answer: a }] }),
+                });
+                if (!res.ok) throw new Error('Failed to add FAQ');
+                document.getElementById('newQuestion').value = '';
+                document.getElementById('newAnswer').value = '';
+                showToast('FAQ added!', 'success');
+                loadFaqs();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function deleteFaq(index) {
+            try {
+                const res = await fetch(`${API_BASE}/api/faqs/${index}`, { method: 'DELETE' });
+                if (!res.ok) throw new Error('Failed to delete FAQ');
+                showToast('FAQ removed.', 'success');
+                loadFaqs();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function clearFaqs() {
+            if (!confirm('Are you sure you want to clear all FAQs?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/faqs`, { method: 'DELETE' });
+                if (!res.ok) throw new Error('Failed to clear FAQs');
+                showToast('All FAQs cleared.', 'success');
+                loadFaqs();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        async function resetFaqs() {
+            try {
+                const res = await fetch(`${API_BASE}/api/faqs/reset`, { method: 'POST' });
+                if (!res.ok) throw new Error('Failed to reset FAQs');
+                showToast('FAQs reset to defaults.', 'success');
+                loadFaqs();
+            } catch (err) {
+                showToast(err.message, 'error');
+            }
+        }
+
+        // ── Utilities ──────────────────────────────────────────────────────
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3500);
+        }
+
+        // ── Init ───────────────────────────────────────────────────────────
+        loadFaqs();
+        chatInput.focus();
+    </script>
+</body>
+
+</html>
